@@ -53,7 +53,7 @@ export const dayId = (m, d) => `day:${YEAR}-${pad(m + 1)}-${pad(d)}`;
 export const daysInMonth = (m) => new Date(YEAR, m + 1, 0).getDate();
 /** Valida que un id de documento sea uno de los permitidos (mismo patrón que la base de datos). */
 export function isValidDocId(id) {
-    return /^(settings|year|studio|cycle|shopping|notes|prayers|projects|month:2027-(0[1-9]|1[0-2])|week:2027-W(0[1-9]|[1-4]\d|5[0-3])|day:2027-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])|stickers:[a-z0-9-]{1,40})$/.test(id);
+    return /^(settings|year|studio|prep|cycle|shopping|notes|prayers|projects|month:2027-(0[1-9]|1[0-2])|week:2027-W(0[1-9]|[1-4]\d|5[0-3])|day:2027-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])|stickers:[a-z0-9-]{1,40})$/.test(id);
 }
 /* ---------- Cálculos (los mismos que verifica el control de calidad) ---------- */
 const n = (v) => Number(v) || 0;

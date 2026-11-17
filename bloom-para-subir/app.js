@@ -6,6 +6,7 @@ import { YEAR, newSettings, daysInMonth, newMonth, newDay, normalizeMonth, norma
 import { STICKER_CATS, stickerById } from './stickers.js';
 import * as G from './google.js';
 import * as C from './cloud.js';
+import { PREP_WEEKS, PREP_DAYS } from './prepare.js';
 import { MONTHS, DIMENSIONS, VISION_VERSE, PHRASE, WELCOME, ART, CENTRAL, NVI_NOTICE, wreath, bouquet, garland, rose, daisy, AREAS, GROWTH, growthRef, STEWARD, CLOSING_VERSE, PREP, CLOSING, FAMILY_KINDS, WORK_KINDS, DAILY } from './content.js';
 const store = new Store();
 const $ = (s) => document.querySelector(s);
@@ -19,7 +20,7 @@ const TAB_COLORS = ['t-navy', 't-rose', 't-blue', 't-sand', 't-mist', 't-blush']
 const BLOOM_LINES = ['Florecer también es avanzar despacio.', 'Hoy riego lo que quiero ver crecer.', 'Las raíces trabajan aunque no se vean.', 'Un paso pequeño también es crecimiento.', 'Hay belleza en los procesos.', 'Hoy cultivo paz, no prisa.', 'Florezco donde Dios me plantó.', 'Lo que cuido, crece.', 'Mi valor no depende de mi lista de pendientes.', 'Cada día es tierra nueva.', 'Puedo empezar de nuevo a mitad del día.', 'Soy jardín, no máquina.', 'La calma también es fruto.', 'Siembro hoy con esperanza.'];
 /* ---------- Documentos ---------- */
 const newYear = () => ({ vision: { feel: '', build: '', leave: '', cultivate: '', word: '', verse: '', declaration: '' }, goals: [] });
-const MAKERS = { year: newYear, settings: newSettings };
+const MAKERS = { year: newYear, settings: newSettings, prep: () => ({ done: Array(31).fill(false), notes: Array(31).fill('') }) };
 const docOf = (id) => {
     if (id.startsWith('month:'))
         return normalizeMonth(store.getOr(id, newMonth));
@@ -100,9 +101,15 @@ function route() {
     if ((r = h.match(/^semana-(\d{1,2})$/)) && +r[1] >= 1 && +r[1] <= 53)
         return { v: 'semana', w: +r[1] };
     if (h === 'hoy') {
+        const n = new Date();
+        if (n.getFullYear() === YEAR - 1 && n.getMonth() === 11)
+            return { v: 'preparar', d: n.getDate() };
         const t = todayInYear();
         return { v: 'dia', m: t.getMonth(), d: t.getDate() };
     }
+    const pm = h.match(/^preparar(?:-(\d{1,2}))?$/);
+    if (pm)
+        return { v: 'preparar', d: pm[1] ? Math.min(31, Math.max(1, +pm[1])) : 0 };
     if (SOON[h])
         return { v: 'pronto', s: h };
     return { v: 'inicio' };
@@ -131,6 +138,8 @@ function renderFrame(r) {
         c.push('<b>Biblioteca de stickers</b>');
     if (r.v === 'estudio')
         c.push('<b>Mi Estudio Creativo</b>');
+    if (r.v === 'preparar')
+        c.push(r.d ? `<a href="#preparar">31 días para florecer</a> › <b>Día ${r.d}</b>` : '<b>31 días para florecer</b>');
     const LIFE = { ciclo: 'Mi ciclo', compras: 'Lista de compras', hojitas: 'Mis hojitas', oracion: 'Peticiones de oración', proyectos: 'Mis proyectos', lectura: 'Mi lectura' };
     if (LIFE[r.v])
         c.push(`<b>${LIFE[r.v]}</b>`);
@@ -161,7 +170,7 @@ const pager = (prev, next) => `<nav class="pager" aria-label="Volver y continuar
 function viewCover() {
     const now = currentMonth(), st = yearStats(), name = settings().name.trim();
     const icons = [rose(), daisy('#F5E6E9', '#D8A7B1'), ART.flower(), rose('#A9BCD6', '#8FA6C6'), ART.butterfly('#D8A7B1', '#A9BCD6'), daisy()];
-    return `<div class="cover">${cloudBanner()}
+    return `${cloudBanner()}${prepBanner()}<div class="cover">
   <section class="cover-hero">
     <div class="deco" style="right:-26px;top:-40px;width:230px;opacity:.95">${bouquet(0)}</div>
     <div style="display:flex;gap:16px;align-items:center">
@@ -1186,6 +1195,37 @@ function viewReading() {
         : '<p class="muted">Escribe tu libro de cada mes en Planeando mi mes (módulo H) y aquí se reúnen todos, con tus frases favoritas.</p>'}</section>
   ${pager(['#inicio', 'Inicio'], null)}`;
 }
+const prepDoc = () => docOf('prep');
+function prepBanner() {
+    const n = new Date();
+    if (n.getFullYear() >= YEAR)
+        return '';
+    const done = store.get('prep')?.done.filter(Boolean).length ?? 0;
+    const dec = n.getMonth() === 11 ? n.getDate() : 0;
+    return `<a class="prepbanner" href="#preparar${dec ? '-' + dec : ''}"><span class="pb-ic">${ART.sprig ? ART.sprig() : ''}</span><span><span class="eyebrow">Diciembre 2026 · Antes de empezar</span><b>31 días para florecer</b><span class="small">${dec ? `Hoy es el día ${dec}` : 'Prepara tu corazón y tu año, un día a la vez'}${done ? ` · llevas ${done} de 31` : ''}</span></span><span class="pb-go">→</span></a>`;
+}
+function viewPrepare(d) {
+    const doc = prepDoc();
+    if (!d) {
+        const done = doc.done.filter(Boolean).length;
+        let i = 0;
+        return `<header class="mhero two"><div><div class="eyebrow">Diciembre 2026 · Regalo antes de empezar</div><h1 style="font-size:clamp(40px,6vw,64px)">31 días para florecer</h1><div class="theme">Un día a la vez: agradecer, soltar, soñar y preparar tu 2027 con Dios</div></div>
+      <aside class="promise"><div class="ref">${CENTRAL.ref} · NVI</div><p>${CENTRAL.text}</p></aside></header>
+    <div style="display:flex;align-items:center;gap:10px;margin:18px 0"><div class="pbar navy" style="flex:1;height:8px"><i style="width:${Math.round(done / 31 * 100)}%"></i></div><span class="small">${done} de 31 días</span></div>
+    ${PREP_WEEKS.map(w => `<section class="mod" style="margin-top:16px"><div class="mod-h"><h2>${w.n}</h2><span class="hint">${w.sub}</span></div><div class="prepgrid">${w.days.map(x => { const k = ++i; return `<a class="prepday ${doc.done[k - 1] ? 'done' : ''}" href="#preparar-${k}"><span class="n">${k}</span><span>${esc(x.t)}</span>${doc.done[k - 1] ? '<i>✓</i>' : ''}</a>`; }).join('')}</div></section>`).join('')}
+    <p class="small muted" style="margin-top:14px">Empieza cuando quieras: no importa si te saltas días. Lo que escribas queda guardado en tu agenda.</p>
+    ${pager(['#inicio', 'Inicio'], ['#preparar-1', 'Día 1'])}`;
+    }
+    const x = PREP_DAYS[d - 1], wk = PREP_WEEKS.find(w => w.days.includes(x)), lit = x.ref === CENTRAL.ref;
+    return `<header class="mhero two"><div><div class="eyebrow">31 días para florecer · ${wk.n}</div><h1 style="font-size:clamp(36px,5.5vw,58px)"><span class="dnum">Día ${d}</span> ${esc(x.t)}</h1><div class="theme">${d} de diciembre de 2026</div></div>
+    <aside class="promise"><div class="ref">${x.ref}${lit ? ' · NVI' : ''}</div><p>${lit ? CENTRAL.text : x.p}</p>${lit ? '' : '<div class="tag">Paráfrasis Bloom · lee el texto completo en tu Biblia</div>'}</aside></header>
+  <section class="mod" style="margin-top:18px"><div class="mod-h"><h2>Para escribir</h2></div>
+    <p class="serif" style="font-size:22px;color:var(--navy);margin:0 0 10px">${esc(x.q)}</p>
+    ${ta('prep', `notes.${d - 1}`, doc.notes[d - 1] || '', 'Escribe aquí con calma…', 7)}
+    <div class="proto-note" style="margin-top:12px"><b>Un paso pequeño:</b> ${esc(x.a)}${x.link ? ` <a href="${x.link[0]}">${x.link[1]} →</a>` : ''}</div>
+    <label class="cyc-toggle ${doc.done[d - 1] ? 'on' : ''}" style="margin-top:12px"><input type="checkbox" data-doc="prep" data-p="done.${d - 1}" data-t="b" ${doc.done[d - 1] ? 'checked' : ''}><span>${doc.done[d - 1] ? '¡Día completado! 🌸' : 'Marcar este día como completado'}</span></label></section>
+  ${pager(d > 1 ? [`#preparar-${d - 1}`, `Día ${d - 1}`] : ['#preparar', 'Los 31 días'], d < 31 ? [`#preparar-${d + 1}`, `Día ${d + 1}`] : ['#mes-1', 'Enero 2027'])}`;
+}
 /* ===================== Mi cuenta y la nube (fase 8) ===================== */
 let cloudTimer = 0, pendingRender = false;
 function cloudSoon() { if (!C.user())
@@ -1428,6 +1468,11 @@ function viewSettings() {
     <p class="small muted">Tu agenda se guarda sola en este dispositivo. Descarga una copia de vez en cuando y guárdala en tu Drive o tu correo: con ella recuperas todo en otro celular o computador.</p>
     <div class="quick"><button class="btn primary" data-a="backup">Descargar mi copia</button><label class="btn">Restaurar desde una copia<input id="restore" type="file" accept=".json,application/json" hidden></label></div>
   </section>
+  <section class="mod"><div class="mod-h"><h2>Empezar de cero</h2></div>
+    <p class="small muted">Borra todo lo que has escrito en BLOOM en este dispositivo, por ejemplo después de probarla, para empezar tu año limpia. Si entraste con Google, también se borra la copia de tu Drive. No se puede deshacer: si quieres, descarga antes tu copia.</p>
+    <details class="danger"><summary class="small">Borrar todo y empezar de cero</summary>
+      ${lab('Para confirmar, escribe BORRAR', '<input class="inp" id="resetConfirm" autocomplete="off">')}
+      <button class="rm" data-a="reset-all">Borrar todo lo que escribí</button></details></section>
   <section class="mod"><div class="mod-h"><h2>Créditos</h2></div>
     <p class="small">BLOOM 2027 es un regalo de Psicóloga Marha · www.psicologamarha.com · @psicologamarha</p>
     <p class="small muted">${NVI_NOTICE}</p>
@@ -1503,14 +1548,14 @@ function render(keepScroll = false) {
     tapa.innerHTML = '';
     renderFrame(r);
     const v = $('#view');
-    v.innerHTML = (r.v === 'ciclo' ? viewCycle() : r.v === 'compras' ? viewShopping() : r.v === 'hojitas' ? viewNotes() : r.v === 'oracion' ? viewPrayers() : r.v === 'proyectos' ? viewProjects() : r.v === 'lectura' ? viewReading() : r.v === 'estudio' ? viewStudio() : r.v === 'stickers' ? viewStickers() : r.v === 'buscar' ? viewSearch() : r.v === 'recordatorios' ? viewReminders() : r.v === 'finanzas' ? viewFinance() : r.v === 'portada' ? viewMonthCover(r.m) : r.v === 'anio' ? viewYear() : r.v === 'metas' ? viewGoals() : r.v === 'mes' ? viewMonth(r.m) : r.v === 'dia' ? viewDay(r.m, r.d) : r.v === 'semana' ? viewWeek(r.w) : r.v === 'pronto' ? viewSoon(r.s) : r.v === 'ajustes' ? viewSettings() : viewCover())
+    v.innerHTML = (r.v === 'preparar' ? viewPrepare(r.d) : r.v === 'ciclo' ? viewCycle() : r.v === 'compras' ? viewShopping() : r.v === 'hojitas' ? viewNotes() : r.v === 'oracion' ? viewPrayers() : r.v === 'proyectos' ? viewProjects() : r.v === 'lectura' ? viewReading() : r.v === 'estudio' ? viewStudio() : r.v === 'stickers' ? viewStickers() : r.v === 'buscar' ? viewSearch() : r.v === 'recordatorios' ? viewReminders() : r.v === 'finanzas' ? viewFinance() : r.v === 'portada' ? viewMonthCover(r.m) : r.v === 'anio' ? viewYear() : r.v === 'metas' ? viewGoals() : r.v === 'mes' ? viewMonth(r.m) : r.v === 'dia' ? viewDay(r.m, r.d) : r.v === 'semana' ? viewWeek(r.w) : r.v === 'pronto' ? viewSoon(r.s) : r.v === 'ajustes' ? viewSettings() : viewCover())
         + (r.v !== 'inicio' && r.v !== 'portada' ? '' : '') + (r.v !== 'inicio' ? `<div class="page-sign"><img src="${LOGO}" alt="Psicóloga Marha"><span>BLOOM by Psicóloga Marha</span></div>` : '');
     if (installPrompt) {
         const b = document.getElementById('install');
         if (b)
             b.hidden = false;
     }
-    document.title = 'BLOOM 2027 · ' + (r.v === 'ciclo' ? 'Mi ciclo' : r.v === 'compras' ? 'Compras' : r.v === 'hojitas' ? 'Mis hojitas' : r.v === 'oracion' ? 'Oración' : r.v === 'proyectos' ? 'Proyectos' : r.v === 'lectura' ? 'Mi lectura' : r.v === 'estudio' ? 'Mi Estudio Creativo' : r.v === 'stickers' ? 'Stickers' : r.v === 'buscar' ? 'Buscar' : r.v === 'recordatorios' ? 'Recordatorios' : r.v === 'finanzas' ? 'Finanzas' : r.v === 'anio' ? 'Mi año' : r.v === 'metas' ? 'Metas' : r.v === 'mes' || r.v === 'portada' ? MONTHS[r.m].n : r.v === 'dia' ? `${r.d} de ${MONTHS[r.m].n}` : r.v === 'semana' ? `Semana ${r.w}` : r.v === 'pronto' ? SOON[r.s][0] : r.v === 'ajustes' ? 'Ajustes' : 'Portada');
+    document.title = 'BLOOM 2027 · ' + (r.v === 'preparar' ? '31 días para florecer' : r.v === 'ciclo' ? 'Mi ciclo' : r.v === 'compras' ? 'Compras' : r.v === 'hojitas' ? 'Mis hojitas' : r.v === 'oracion' ? 'Oración' : r.v === 'proyectos' ? 'Proyectos' : r.v === 'lectura' ? 'Mi lectura' : r.v === 'estudio' ? 'Mi Estudio Creativo' : r.v === 'stickers' ? 'Stickers' : r.v === 'buscar' ? 'Buscar' : r.v === 'recordatorios' ? 'Recordatorios' : r.v === 'finanzas' ? 'Finanzas' : r.v === 'anio' ? 'Mi año' : r.v === 'metas' ? 'Metas' : r.v === 'mes' || r.v === 'portada' ? MONTHS[r.m].n : r.v === 'dia' ? `${r.d} de ${MONTHS[r.m].n}` : r.v === 'semana' ? `Semana ${r.w}` : r.v === 'pronto' ? SOON[r.s][0] : r.v === 'ajustes' ? 'Ajustes' : 'Portada');
     refreshComputed();
     const nv = (location.hash || '#inicio').slice(1) || 'inicio';
     if (nv !== curView) {
@@ -1636,6 +1681,10 @@ function onField(e) {
         }
     }
     if (e.type === 'change' && el.dataset.p === 'fin.dailyBudget') {
+        render(true);
+        return;
+    }
+    if (e.type === 'change' && id === 'prep') {
         render(true);
         return;
     }
@@ -2147,6 +2196,14 @@ document.addEventListener('click', async (e) => {
         } }, 50);
         return;
     }
+    if (a === 'reset-all') {
+        if (document.getElementById('resetConfirm')?.value.trim().toUpperCase() !== 'BORRAR') {
+            toast('Escribe BORRAR para confirmar.');
+            return;
+        }
+        (C.user() ? C.deleteAccount(store) : store.clearLocal()).then(() => { G.disconnect(); applyTheme(); renderFrame(route()); buildMore(); updateBell(); location.hash = '#tapa'; render(); toast('Listo: tu agenda está en blanco, lista para empezar.'); }).catch(() => toast('No se pudo borrar todo ahora. Revisa tu internet e intenta de nuevo.'));
+        return;
+    }
     if (a === 'c-in') {
         store.flushAll().then(() => C.signIn()).then(() => cloudStart(true)).catch(err => toast(gMsg(err)));
         return;
@@ -2236,7 +2293,7 @@ document.addEventListener('click', async (e) => {
 function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2600); }
 const STATE_TEXT = { saved: '✓ Guardado', saving: 'Guardando…', 'memory-only': 'Sin guardado: descarga tu copia', error: 'No se pudo guardar' };
 function buildMore() {
-    $('#sheetMoreList').innerHTML = [['tapa', 'Cerrar agenda'], ['buscar', 'Buscar'], ['recordatorios', 'Recordatorios'], ['oracion', 'Oración'], ['hojitas', 'Mis hojitas'], ['compras', 'Lista de compras'], ['ciclo', 'Mi ciclo'], ['metas', 'Metas'], ['finanzas', 'Finanzas'], ['proyectos', 'Proyectos'], ['lectura', 'Mi lectura'], ['estudio', 'Mi Estudio'], ['stickers', 'Stickers'], ['ajustes', 'Ajustes y copia']].filter(([h]) => h !== 'ciclo' || cycleOn()).map(([h, t]) => `<a href="#${h}">${t}</a>`).join('');
+    $('#sheetMoreList').innerHTML = [['tapa', 'Cerrar agenda'], ['preparar', '31 días para florecer'], ['buscar', 'Buscar'], ['recordatorios', 'Recordatorios'], ['oracion', 'Oración'], ['hojitas', 'Mis hojitas'], ['compras', 'Lista de compras'], ['ciclo', 'Mi ciclo'], ['metas', 'Metas'], ['finanzas', 'Finanzas'], ['proyectos', 'Proyectos'], ['lectura', 'Mi lectura'], ['estudio', 'Mi Estudio'], ['stickers', 'Stickers'], ['ajustes', 'Ajustes y copia']].filter(([h]) => h !== 'ciclo' || cycleOn()).map(([h, t]) => `<a href="#${h}">${t}</a>`).join('');
 }
 async function main() {
     await store.open();

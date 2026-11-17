@@ -661,3 +661,18 @@ body[data-theme=rosa] .t-blue,body[data-theme=rosa] .t-mist{background:#C9A0A9}
 details.danger{margin-top:14px;border-top:1px dashed var(--line-2);padding-top:10px}
 details.danger summary{cursor:pointer;color:var(--bad)}
 .cloudnote .btn{white-space:nowrap}
+
+/* ===== 31 días para florecer ===== */
+.prepbanner{display:flex;align-items:center;gap:14px;margin:0 0 18px;padding:14px 18px;border-radius:18px;background:var(--navy);color:#fff;text-decoration:none;box-shadow:0 12px 26px -18px rgba(35,57,91,.8)}
+.prepbanner .eyebrow{display:block;color:var(--rose);margin-bottom:2px}
+.prepbanner b{display:block;font:500 26px/1.1 var(--serif)}
+.prepbanner .small{color:#E7DED3}
+.prepbanner .pb-ic{width:44px;flex:none}
+.prepbanner .pb-ic svg{width:100%;height:auto}
+.prepbanner .pb-go{margin-left:auto;font-size:26px;color:var(--rose)}
+.prepgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.prepday{position:relative;display:flex;flex-direction:column;gap:4px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--ivory);text-decoration:none;color:var(--navy);font-size:14px;min-height:74px}
+.prepday .n{font:500 26px/1 var(--serif);color:var(--rose-dust)}
+.prepday.done{background:var(--rose-mist);border-color:var(--rose-dust)}
+.prepday i{position:absolute;top:8px;right:10px;font-style:normal;color:var(--rose-dust)}
+.dnum{display:block;font-size:.45em;letter-spacing:.2em;text-transform:uppercase;color:var(--rose-dust)}
