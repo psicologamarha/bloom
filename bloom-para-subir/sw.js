@@ -1,7 +1,7 @@
 /* BLOOM 2027 · Modo sin conexión.
  * Guarda los archivos de la app en el dispositivo para que abra sin internet.
  * Al publicar una versión nueva, cambia VERSION para que todas reciban la actualización. */
-const VERSION = 'bloom-2027-v19';
+const VERSION = 'bloom-2027-v20';
 const SHELL = ['./', './index.html', './app.css', './manifest.webmanifest',
   './app.js', './store.js', './model.js', './content.js', './stickers.js', './google.js', './cloud.js', './prepare.js', './config.js', './privacidad.html',
   './logo.png', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];

@@ -20,7 +20,8 @@ const gis = () => globalThis.google;
 let token = '', tokenExp = 0, granted = '';
 export const hasToken = () => !!token && Date.now() < tokenExp - 60000;
 export const canRead = () => hasToken() && granted.includes(SCOPE_READ);
-export const available = () => !!CLIENT_ID;
+/** Google Calendar se enciende cuando Google apruebe sus permisos (BLOOM_CALENDAR_ON en config.js). */
+export const available = () => !!CLIENT_ID && !!globalThis.BLOOM_CALENDAR_ON;
 function loadGis() {
     if (gis()?.accounts?.oauth2)
         return Promise.resolve();
