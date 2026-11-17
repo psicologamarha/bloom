@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#23395B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BLOOM">
+<title>BLOOM 2027 · Psicóloga Marha</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div id="tapa"></div>
+<div class="shell">
+  <main class="book" id="book">
+    <header class="topbar">
+      <a class="brandlink" href="#inicio" aria-label="Ir a la portada"><img class="logo-top" src="logo.png" alt="Psicóloga Marha"><span class="brand-mini">BLOOM</span></a>
+      <nav class="crumbs" id="crumbs" aria-label="Ubicación"></nav>
+      <span id="status" role="status"></span>
+      <a class="iconbtn icon" href="#buscar" title="Buscar" aria-label="Buscar"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg></a>
+      <a class="iconbtn icon bell" href="#recordatorios" title="Recordatorios" aria-label="Recordatorios"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 16c1.5-1.5 1.5-4 1.5-6.5a4.5 4.5 0 0 1 9 0c0 2.5 0 5 1.5 6.5z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg><b id="bellCount" hidden></b></a>
+      <button class="iconbtn" id="decorBtn" data-a="decor" title="Decorar con stickers">✿ <span class="hide-m">Decorar</span></button>
+      <a class="iconbtn hide-m" href="#inicio">⌂ Inicio</a>
+      <a class="iconbtn hide-m" href="#tapa" title="Cerrar la agenda">Cerrar</a>
+    </header>
+    <div class="view">
+      <p class="offline-tip">Estás sin internet. Puedes seguir escribiendo: todo queda guardado en este dispositivo.</p>
+      <div id="view"></div>
+    </div>
+    <div class="stlayer" id="stlayer"></div>
+  </main>
+  <nav class="tabs" id="tabs" aria-label="Separadores"></nav>
+</div>
+<nav class="mnav" id="mnav" aria-label="Menú">
+  <a href="#inicio" data-m="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Inicio</a>
+  <button data-open="sheetMonths" data-m="meses"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Meses</button>
+  <a href="#hoy" data-m="hoy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 2v4M16 2v4M4 9h16"/><circle cx="12" cy="14.5" r="2"/></svg>Hoy</a>
+  <a href="#mi-anio" data-m="anio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 3c2 3 2 4 0 6M12 21c-2-3-2-4 0-6M3 12c3-2 4-2 6 0M21 12c-3 2-4 2-6 0"/></svg>Mi año</a>
+  <button data-open="sheetMore" data-m="mas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Más</button>
+</nav>
+<div class="sheet" id="sheetMonths" role="dialog" aria-label="Meses"><div class="panel"><div class="eyebrow">Ir a</div><h3>Los doce meses</h3><div class="mgrid" id="sheetMonthsGrid"></div></div></div>
+<div class="sheet" id="sheetMore" role="dialog" aria-label="Más secciones"><div class="panel"><div class="eyebrow">Separadores</div><h3>Más secciones</h3><div class="slist" id="sheetMoreList"></div></div></div>
+<div class="tray" id="tray"></div>
+<div class="toast" id="toast" role="status"></div>
+<script src="config.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
